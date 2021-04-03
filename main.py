@@ -131,12 +131,16 @@ class Board():
         
     def add_piece(self,pos):
 
-        if self.position_filled(pos) == False:
+        if self.position_filled(pos) == False and self.game_over == False:
            piece = Piece(pos,self.turn)
            self.pieces.add(piece)
            self.board[pos-1] = self.turn
            self.check_game_over()
            self.change_turn()
+           
+    def avail_moves(self):
+        # This is 1 indexed
+        return([int(i) + 1 for i, e in enumerate(self.board) if e == 0] )
         
 class Turn(pygame.sprite.Sprite):
     def __init__(self):
@@ -154,6 +158,13 @@ class Turn(pygame.sprite.Sprite):
         self.surf = myfont.render(str(text), False, (0,0,0))
         self.rect = self.surf.get_rect(center = (800,50))
     
+    
+class Random_Bot():
+    def make_move(self,board):
+        my_moves = board.avail_moves()
+        my_move = random.choice(my_moves)
+        board.add_piece(my_move)
+
 
 # test = Piece()
 
@@ -161,6 +172,7 @@ class Turn(pygame.sprite.Sprite):
 
 board = Board()
 turn = Turn()
+random_bot = Random_Bot()
 
 # Run until the user asks to quit
 running = True
@@ -207,15 +219,16 @@ while running:
             running = False
     
   
-    
-    
+
     
    
        # Update score
     turn.update(board.turn)
     screen.blit(turn.surf,turn.rect)
                 
-        
+    if board.turn == 1:
+        random_bot.make_move(board)
+       
     # Draw all sprites
     for piece in board.pieces:
         screen.blit(piece.surf, piece.rect)
