@@ -44,6 +44,9 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 # Initialize pygame
 pygame.init()
+# Need this for text
+pygame.font.init()
+
 myfont = pygame.font.SysFont('Comic Sans MS', 30)
 # Setup the clock for a decent framerate
 clock = pygame.time.Clock()
@@ -146,20 +149,24 @@ class Turn(pygame.sprite.Sprite):
     def __init__(self):
         super(Turn, self).__init__()
         self.turn = 1
+        self.turn_text = "Cross"
         self.surf = myfont.render(str("Cross"), False, (0,0,0))
         self.rect = self.surf.get_rect(center = (800,50))
         
     def update(self,turn):
         self.turn = turn
         if self.turn == 1:
-            text = "Cross"
+            self.turn_text = "Cross"
         else:
-            text = "Nought"
-        self.surf = myfont.render(str(text), False, (0,0,0))
+            self.turn_text = "Nought"
+        self.surf = myfont.render(self.turn_text, False, (0,0,0))
         self.rect = self.surf.get_rect(center = (800,50))
     
     
 class Random_Bot():
+    def __init__(self):
+        self.ignore = 1
+    
     def make_move(self,board):
         my_moves = board.avail_moves()
         my_move = random.choice(my_moves)
@@ -173,6 +180,15 @@ class Random_Bot():
 board = Board()
 turn = Turn()
 random_bot = Random_Bot()
+
+
+# Restart button
+# defining a font
+
+button_restart_text = myfont.render('RESTART' , True , (255,255,255))
+color_light = (170,170,170)
+color_dark = (100,100,100)
+  
 
 # Run until the user asks to quit
 running = True
@@ -192,6 +208,20 @@ while running:
     
     pygame.draw.line(screen,"black",(600,0),(600,600)) 
     
+    
+    # stores the (x,y) coordinates into
+    # the variable as a tuple
+    mouse = pygame.mouse.get_pos()
+    
+    if SCREEN_WIDTH/2 <= mouse[0] <= SCREEN_WIDTH/2+140 and SCREEN_HEIGHT/2 <= mouse[1] <= SCREEN_HEIGHT/2+40:
+        pygame.draw.rect(screen,color_light,[SCREEN_WIDTH/2,SCREEN_HEIGHT/2,140,40])
+          
+    else:
+        pygame.draw.rect(screen,color_dark,[SCREEN_WIDTH/2,SCREEN_HEIGHT/2,140,40])
+        
+   # superimposing the text onto our button
+    screen.blit(button_restart_text , (SCREEN_WIDTH/2+50,SCREEN_HEIGHT/2)) 
+        
     # Look at every event in the queue
     for event in pygame.event.get():
         # Did the user hit a key?
@@ -199,7 +229,15 @@ while running:
             # Was it the Escape key? If so, stop the loop.
             if event.key == K_ESCAPE:
                 running = False
-        
+                
+        #checks if a mouse is clicked
+        if event.type == pygame.MOUSEBUTTONDOWN:
+              
+            #if the mouse is clicked on the
+            # button the game is terminated
+            if SCREEN_WIDTH/2 <= mouse[0] <= SCREEN_WIDTH/2+140 and SCREEN_HEIGHT/2 <= mouse[1] <= SCREEN_HEIGHT/2+40:
+                pygame.quit()
+                  
         
         if event.type == KEYUP and board.game_over == False:
             if event.key == K_KP1: board.add_piece(1)
